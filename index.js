@@ -1,29 +1,11 @@
-const { getAllFilePathsWithExtension, readFile } = require('./fileSystem');
-const { readLine } = require('./console');
+const { listFiles, lines } = require('./fileSystem');
+const Lazy = require('./iteration');
 
-app();
+let todos =
+    new Lazy(Array.from(listFiles('.')))
+        .filter(x => /^.*\.js$/.test(x))
+        .flatMap(x => lines(x))
+        .filter(x => /\/\/ *TODO.*/.test(x));
 
-function app () {
-    const files = getFiles();
-
-    console.log('Please, write your command!');
-    readLine(processCommand);
-}
-
-function getFiles () {
-    const filePaths = getAllFilePathsWithExtension(process.cwd(), 'js');
-    return filePaths.map(path => readFile(path));
-}
-
-function processCommand (command) {
-    switch (command) {
-        case 'exit':
-            process.exit(0);
-            break;
-        default:
-            console.log('wrong command');
-            break;
-    }
-}
-
-// TODO you can do it!
+for(let line of todos)
+    console.log(line);
