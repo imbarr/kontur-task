@@ -1,5 +1,5 @@
 const { tree, lines } = require('./fileSystem');
-const Lazy = require('./iteration');
+const Lazy = require('./lazy');
 const path = require('path');
 const columns = require('./config').columns;
 
@@ -141,6 +141,31 @@ function asStrings(todos, comparator) {
 }
 
 /**
+ * Компаратор TodoRepr по имени автора.
+ *
+ * @param {TodoRepr} a
+ * @param {TodoRepr} b
+ * @returns {number} - Результат сравнения.
+ */
+function nameComparator(a, b) {
+    return a.name.toLowerCase() < b.name.toLowerCase() && a.name !== "" || b.name === ""
+        ? -1
+        : a.name.toLowerCase() > b.name.toLowerCase() || (a.name === "" && b.name !== "")
+}
+
+/**
+ * Компаратор TodoRepr по степени важности.
+ *
+ * @param {TodoRepr} a
+ * @param {TodoRepr} b
+ * @returns {number} - Результат сравнения.
+ */
+function importanceComparator(a, b) {
+    let count = (todo) => (todo.comment.match(/!/g) || []).length;
+    return count(b) - count(a)
+}
+
+/**
  * Функция, реализующая функционал консольной утилиты.
  *
  * @param {string} command - Имя команды.
@@ -148,7 +173,7 @@ function asStrings(todos, comparator) {
  * @returns {string|Lazy.<string>} - Результат работы, либо сообщение по умолчанию,
  *     если функция не умеет обрабатывать заданную команду.
  */
-function program(command, ...params) {
+function execute(command, ...params) {
     // Более функциональный подход, чем при использовании switch...case. Источник:
     // https://codeburst.io/alternative-to-javascripts-switch-statement-with-a-functional-twist-3f572787ba1c
     return match(command)
@@ -166,15 +191,10 @@ function program(command, ...params) {
                     asStrings(allTodos().filter(x => x.name.toLowerCase().startsWith(params[0].toLowerCase())))))
         .on('sort', () =>
             match(params[0])
-                .on('importance', () => {
-                    let count = (todo) => (todo.comment.match(/!/g) || []).length;
-                    return asStrings(allTodos(), (a, b) => count(b) - count(a))
-                })
+                .on('importance', () =>
+                    asStrings(allTodos(), importanceComparator))
                 .on('user', () =>
-                    asStrings(allTodos(), (a, b) =>
-                        a.name.toLowerCase() < b.name.toLowerCase() && a.name !== "" || b.name === ""
-                            ? -1
-                            : a.name.toLowerCase() > b.name.toLowerCase() || (a.name === "" && b.name !== "")))
+                    asStrings(allTodos(), nameComparator))
                 .on('date', () =>
                     asStrings(allTodos(), (a, b) => b.date < a.date ? -1 : b.date > a.date))
                 .on(undefined, () =>
@@ -228,4 +248,4 @@ const match = x => ({
     otherwise: fn => fn(x),
 });
 
-module.exports = program;
+module.exports = execute;

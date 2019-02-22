@@ -1,5 +1,5 @@
 const readline = require('readline');
-const program = require('./program');
+const execute = require('./program');
 const fs = require('fs');
 
 const rl = readline.createInterface({
@@ -12,7 +12,7 @@ rl.on('line', (command) => {
     if(tokens[0].length === 0)
         return;
     try {
-        let result = program(...tokens);
+        let result = execute(...tokens);
         if (typeof result === 'string')
             console.log(result);
         else
