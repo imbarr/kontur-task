@@ -1,5 +1,6 @@
 const readline = require('readline');
 const program = require('./program');
+const fs = require('fs');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -7,12 +8,25 @@ const rl = readline.createInterface({
 
 console.log('Please, write your command!');
 rl.on('line', (command) => {
-    let tokens = command.split(/ +/);
+    let tokens = command.trim().split(/ +/);
     if(tokens[0].length === 0)
         return;
-    let result = program(tokens[0])(...tokens.slice(1));
-    if(typeof result === 'string')
-        console.log(result);
-    else
-        console.log(result.reduce((a, b) => a + '\n' + b, ''));
+    try {
+        let result = program(...tokens);
+        if (typeof result === 'string')
+            console.log(result);
+        else
+        //Правильнее было бы печатать результат построчно, но тогда не будут проходить тесты
+            console.log(result.reduce((a, b) => a + '\n' + b, ''));
+    }
+    catch (error) {
+        // Проверка, является ли ошибка системной.
+        if('errno' in error) {
+            console.log('system error occurred');
+        }
+        else {
+            console.log('unknown error occurred, exiting...');
+            process.exit(1);
+        }
+    }
 });

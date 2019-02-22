@@ -1,3 +1,4 @@
+/** Обертка над итерируемыми объектами, реализующая методы для ленивых вычислений. */
 class Lazy {
     constructor(iterable) {
         this.iterable = iterable;
