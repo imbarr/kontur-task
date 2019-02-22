@@ -1,11 +1,18 @@
-const { listFiles, lines } = require('./fileSystem');
-const Lazy = require('./iteration');
+const readline = require('readline');
+const program = require('./program');
 
-let todos =
-    new Lazy(Array.from(listFiles('.')))
-        .filter(x => /^.*\.js$/.test(x))
-        .flatMap(x => lines(x))
-        .filter(x => /\/\/ *TODO.*/.test(x));
+const rl = readline.createInterface({
+    input: process.stdin,
+});
 
-for(let line of todos)
-    console.log(line);
+console.log('Please, write your command!');
+rl.on('line', (command) => {
+    let tokens = command.split(/ +/);
+    if(tokens[0].length === 0)
+        return;
+    let result = program(tokens[0])(...tokens.slice(1));
+    if(typeof result === 'string')
+        console.log(result);
+    else
+        console.log(result.reduce((a, b) => a + '\n' + b, ''));
+});

@@ -1,0 +1,19 @@
+{
+    "columns": {
+        "names": {
+            "name": "user",
+            "date": "date",
+            "file": "fileName",
+            "comment": "comment",
+            "importance": "!"
+        },
+        "maxWidth": {
+            "name": 10,
+            "date": 10,
+            "file": 15,
+            "comment": 50,
+            "importance": 1
+        }
+    },
+    "fileEncoding": "utf8"
+}
